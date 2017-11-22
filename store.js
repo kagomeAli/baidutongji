@@ -1,10 +1,10 @@
 // 数据库
 var mysql      = require('mysql');
 var connection = mysql.createConnection({
-    host     : 'localhost',  // 数据库的地址
-    user     : 'root',  // 数据库的账号
-    password : '123456', // 数据库的，密码
-    database : 'baidutongji' // 数据库的库名
+    host     : 'localhost',
+    user     : 'root',
+    password : '123456',
+    database : 'baidutongji'
 });
 
 // sql语句
@@ -14,9 +14,9 @@ connection.connect();
 var myDate = new Date();
 var today = '' + myDate.getFullYear() +'/'+ (myDate.getMonth() + 1)+'/' + (myDate.getDate() - 1)
 var yesterday = '' + myDate.getFullYear() +'/'+ (myDate.getMonth() + 1) +'/'+ (myDate.getDate() - 2)
-console.log('需要存储的日期：' + today)
 //判断是否有导入过数据
 sqlString = 'select id from guidedata where date_time = ' + new Date(today).getTime()
+let storeSql = []
 connection.query(sqlString, function (err, result) {
     if (err) {
         console.log(err)
@@ -27,8 +27,7 @@ connection.query(sqlString, function (err, result) {
         if (result[0] && result[0].id) {
             console.log('存储过了')
             connection.end()
-        }
-        if (result == []){
+        } else {
             console.log('没有存储过数据')
             baidutongji()
         }
@@ -39,9 +38,9 @@ connection.query(sqlString, function (err, result) {
 const baidutongji = async () => {
     // 百度统计连接
     const config = {
-        username: '****', //百度统计的账号
-        password: '****', // 百度统计的密码
-        token: '****', //token
+        username: 'Travelshell',
+        password: 'travelshell',
+        token: '9da1e64162eba1b8f64b904deaa1f12b', //token
         uuid: 'uuid'
     }
     // 引入百度统计
@@ -65,12 +64,7 @@ const baidutongji = async () => {
     data = data.body.data[0].result.items
     sqlString = 'insert into guidedata(pv,uv,date,date_time) value("' + data[1][1][0] + '","' + data[1][1][1] + '","' + data[0][1][0] +  '","'+ new Date(data[0][1][0]).getTime() + '")'
     sqlString = sqlString.replace(/--/ig, '0')
-    connection.query(sqlString, function (err, result) {
-        if (err) {
-            console.log(err)
-            return
-        }
-    });
+    storeSql.push(sqlString)
   /*
    guide.beike-official-accounts.bklx.site
    贝壳导游之家
@@ -87,14 +81,20 @@ const baidutongji = async () => {
     data2 = data2.body.data[0].result.items
     sqlString = 'insert into userdata(pv,uv,date,date_time) value("' + data2[1][1][0] + '","' + data2[1][1][1] + '","' + data2[0][1][0] + '","' + new Date(data2[0][1][0]).getTime() + '")'
     sqlString = sqlString.replace(/--/ig, '0')
-    connection.query(sqlString, function (err, result) {
-        if (err) {
-            console.log(err)
-            return
-        }
-    });
-
-    connection.end();
+    storeSql.push(sqlString)
     //登出
+    storeData(storeSql)
     tongji.logout()
 }
+ function storeData (arr) {
+    for (let i = 0; i<arr.length; i++) {
+        connection.query(arr[i], function (err, result) {
+            if (err) {
+                console.log(err)
+                connection.end();
+                return
+            }
+        })
+    }
+    connection.end();
+ }
