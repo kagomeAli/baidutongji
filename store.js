@@ -1,10 +1,10 @@
 // 数据库
 var mysql      = require('mysql');
 var connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : '123456',
-    database : 'baidutongji'
+    host     : 'localhost',  // 数据库的地址
+    user     : 'root',  // 数据库的账号
+    password : '123456', // 数据库的，密码
+    database : 'baidutongji' // 数据库的库名
 });
 
 // sql语句
@@ -39,9 +39,9 @@ connection.query(sqlString, function (err, result) {
 const baidutongji = async () => {
     // 百度统计连接
     const config = {
-        username: 'Travelshell',
-        password: 'travelshell',
-        token: '9da1e64162eba1b8f64b904deaa1f12b', //token
+        username: '****', //百度统计的账号
+        password: '****', // 百度统计的密码
+        token: '****', //token
         uuid: 'uuid'
     }
     // 引入百度统计
